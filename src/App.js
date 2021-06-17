@@ -1,72 +1,49 @@
 import React from 'react'
-import PropTypes from 'prop-types'
+import axios from 'axios'
+import Movie from './Movie'
 
-function Food({ name, image, rating }) {
-  return (
-    <div>
-      <h2>{name}</h2>
-      <h4>Rating {rating}.0 / 5.0</h4>
-      <img alt={name} src={image} width="300" height="200" />
-      <br />
-    </div>
-  )
+class App extends React.Component {
+  state = {
+    isLoading: true,
+    movies: [],
+  }
+
+  getMovies = async () => {
+    const {
+      data: {
+        data: { movies },
+      },
+    } = await axios.get(
+      'https://yts-proxy.now.sh/list_movies.json?sort_by=rating'
+    )
+    this.setState({ movies, isLoading: false })
+  }
+  componentDidMount() {
+    this.getMovies()
+  }
+
+  render() {
+    const { isLoading, movies } = this.state
+    return (
+      <div>
+        {isLoading
+          ? 'Loading...'
+          : movies.map(movie => {
+              console.log(movie)
+              return (
+                <Movie
+                  key={movie.id}
+                  id={movie.id}
+                  year={movie.year}
+                  title={movie.title}
+                  summary={movie.summary}
+                  poster={movie.medium_cover_image}
+                />
+              )
+            })}
+      </div>
+    )
+  }
 }
-
-Food.propTypes = {
-  name: PropTypes.string.isRequired,
-  image: PropTypes.string.isRequired,
-  rating: PropTypes.number.isRequired,
-}
-
-function App() {
-  return (
-    <div>
-      {foodsThatILike.map((dish) => (
-        <Food
-          key={dish.id}
-          name={dish.name}
-          image={dish.image}
-          rating={dish.rating}
-        />
-      ))}
-    </div>
-  )
-}
-
-const foodsThatILike = [
-  {
-    id: 1,
-    name: 'Kimchi',
-    image:
-      'https://kstory365.files.wordpress.com/2015/01/kimchi-01-cabbage.jpg',
-    rating: 5,
-  },
-  {
-    id: 2,
-    name: 'Samgyeopsal',
-    image:
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Samgyeopsal-gui.jpg/1200px-Samgyeopsal-gui.jpg',
-    rating: 4,
-  },
-  {
-    id: 3,
-    name: 'Bibimbap',
-    image:
-      'https://www.50friendly.com/wp-content/uploads/2020/05/bibimbap-korean-dish.jpg',
-    rating: 2,
-  },
-  {
-    id: 4,
-    name: 'Doncasu',
-    image: 'http://c1.staticflickr.com/3/2700/4287500563_067042fa38.jpg',
-    rating: 1,
-  },
-  {
-    id: 5,
-    name: 'Kimbap',
-    image: 'https://www.maangchi.com/wp-content/uploads/2013/09/kimbap.jpg',
-    rating: 5,
-  },
-]
 
 export default App
